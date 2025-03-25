@@ -1,3 +1,12 @@
+# Resume Analyzer AI  
+✨ *Analyze resumes with AI (no cloud needed!)*  
+
+### How to Run:  
+1. Install Ollama:  
+   ```bash
+   curl -fsSL https://ollama.com/install.sh | sh
+   ollama pull llama3
+
 # resume-analyzer
 **AI Resume Analyzer** 📊    LLM-powered tool (Ollama/Streamlit) that extracts key details from resumes (PDF/DOCX). Analyzes fresher/experienced profiles with structured insights. Easy setup, customizable prompts.    🔗 [github.com/dadicharan/resume-analyzer](https://github.com/dadicharan/resume-analyzer)    #AI #LLM #RecruitmentTech
 
