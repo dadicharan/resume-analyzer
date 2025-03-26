@@ -1,14 +1,13 @@
 import streamlit as st
 import pandas as pd
-from utils.resume_parser import parse_resume, analyze_with_llm
-import os
-import tempfile
+from utils.resume_parser import parse_pdf_from_bytes, parse_docx_from_bytes, analyze_with_llm
+from io import BytesIO
 from rapidjson import loads
 
 # Set page config
 st.set_page_config(page_title="Resume Analyzer Pro", page_icon="📄", layout="wide")
 
-# Custom CSS
+# Custom CSS (unchanged)
 st.markdown("""
 <style>
     .resume-preview {
@@ -117,17 +116,23 @@ def main():
     uploaded_file = st.file_uploader("📤 Upload Resume (PDF or DOCX)", type=["pdf", "docx"])
     
     if uploaded_file is not None:
-        # Save and parse the uploaded file
-        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_file.name)[1]) as tmp_file:
-            tmp_file.write(uploaded_file.getvalue())
-            tmp_path = tmp_file.name
-        
-        st.session_state.resume_text = parse_resume(tmp_path)
-        os.unlink(tmp_path)
-        
-        # Display resume preview
-        st.subheader("📝 Resume Preview")
-        st.markdown(f'<div class="resume-preview">{st.session_state.resume_text[:3000]}</div>', unsafe_allow_html=True)
+        try:
+            # Read file directly into memory
+            file_bytes = uploaded_file.getvalue()
+            
+            # Parse based on file type
+            if uploaded_file.name.endswith('.pdf'):
+                st.session_state.resume_text = parse_pdf_from_bytes(file_bytes)
+            elif uploaded_file.name.endswith('.docx'):
+                st.session_state.resume_text = parse_docx_from_bytes(file_bytes)
+            
+            # Display resume preview
+            st.subheader("📝 Resume Preview")
+            st.markdown(f'<div class="resume-preview">{st.session_state.resume_text[:3000]}</div>', unsafe_allow_html=True)
+            
+        except Exception as e:
+            st.error(f"Failed to process file: {str(e)}")
+            st.session_state.resume_text = ""
         
         # Analyze button action
         if analyze_btn and st.session_state.resume_text:
